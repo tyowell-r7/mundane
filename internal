@@ -17,7 +17,7 @@ cd sslscanalyzer
 
 ./sslscanalyzer.sh ../ssl-check.txt -q -r 3 --do-sslscan --bad-ciphers --no-links -o ssl-report
 
-mv ssl-report.html ../download
+mv ssl-report.html ../download/
 
 cd ..
 
@@ -34,7 +34,7 @@ cd ..
 
 #get smb-signing disabled hosts
 cme smb smb-hosts.txt --gen-relay-list smb-signing-disabled.txt
-mv smb-signing-disabled.txt download/
+mv smb-signing-disabled.txt ../download/
 
 #screenshot time
 nmap -Pn -iL hosts -p 80,443,8080,8443 -oG - | grep open > http-hosts.txt
@@ -45,10 +45,11 @@ awk '/ 8080\/open/{print "http://" $2 ":8080/"}' < http-hosts.txt >> http-urls.t
 #get eyewitness and setup
 git clone https://github.com/ChrisTruncer/EyeWitness
 
-cd EyeWitness
+cd EyeWitness/setup
 
 ./setup.sh
+cd ..
 
-./EyeWitness.py -f ../http-urls.txt -t 5 --web -d webreport
+./EyeWitness.py -f ../http-urls.txt --web -d webreport
 
-mv webreport ../download
+mv webreport ../download/
