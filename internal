@@ -2,6 +2,7 @@
 
 cd ..
 mkdir download
+cd mundane
 #check for live hosts
 nmap -iL ranges -sn -PE -oG - | awk '/Up/{print $2}' > hosts
 
