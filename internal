@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cd ..
+mkdir download
 #check for live hosts
 nmap -iL ranges -sn -PE -oG - | awk '/Up/{print $2}' > hosts
 
@@ -12,7 +14,9 @@ git clone https://github.com/actuated/sslscanalyzer
 
 cd sslscanalyzer
 
-./sslscanalyzer.sh ../ssl-check.txt -q -r 3 --do-sslscan --bad-ciphers --no-links
+./sslscanalyzer.sh ../ssl-check.txt -q -r 3 --do-sslscan --bad-ciphers --no-links -o ssl-report
+
+mv ssl-report.html ../download
 
 cd ..
 
@@ -29,3 +33,21 @@ cd ..
 
 #get smb-signing disabled hosts
 cme smb smb-hosts.txt --gen-relay-list smb-signing-disabled.txt
+mv smb-signing-disabled.txt download/
+
+#screenshot time
+nmap -Pn -iL hosts -p 80,443,8080,8443 -oG - | grep open > http-hosts.txt
+awk '/ 80\/open/{print "http://" $2 "/"}' < http-hosts.txt >> http-urls.txt
+awk '/ 443\/open/{print "https://" $2 "/"}' < http-hosts.txt >> http-urls.txt
+awk '/ 8080\/open/{print "http://" $2 ":8080/"}' < http-hosts.txt >> http-urls.txt
+
+#get eyewitness and setup
+git clone https://github.com/ChrisTruncer/EyeWitness
+
+cd EyeWitness
+
+./setup.sh
+
+./EyeWitness.py -f ../http-urls.txt -t 5 --web -d webreport
+
+mv webreport ../download
