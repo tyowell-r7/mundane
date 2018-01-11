@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#check for live hosts
+nmap -iL ranges -sn -PE -oG - | awk '/Up/{print $2}' > hosts
+
+#check for ssl
+nmap -Pn -iL hosts -p 443, 8443 -oG - | grep open > ssl-hosts.txt
+awk '/ 443\/open/{print $2}' < ssl-hosts.txt >> ssl-check.txt
+awk '/ 8443\/open/{print $2 ":8443"}' < ssl-hosts.txt >> ssl-check.txt
+
+git clone https://github.com/actuated/sslscanalyzer
+
+cd sslscanalyzer
+
+./sslscanalyzer.sh ../ssl-check.txt -q -r 3 --do-sslscan --bad-ciphers --no-links
+
+cd ..
+
+#check for smb
+nmap -Pn -iL hosts -p 445 -oG - | awk '/open/{print $2}' > smb-hosts.txt
+
+#install good cme
+
+apt-get install -y libssl-dev libffi-dev python-dev build-essential
+git clone --recursive https://github.com/byt3bl33d3r/CrackMapExec
+cd CrackMapExec
+python setup.py install
+cd ..
+
+#get smb-signing disabled hosts
+cme smb smb-hosts.txt --gen-relay-list smb-signing-disabled.txt
