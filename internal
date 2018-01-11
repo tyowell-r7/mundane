@@ -17,7 +17,7 @@ cd sslscanalyzer
 
 ./sslscanalyzer.sh ../ssl-check.txt -q -r 3 --do-sslscan --bad-ciphers --no-links -o ssl-report
 
-mv ssl-report.html ../download/
+mv ssl-report.html ../../download/
 
 cd ..
 
@@ -52,4 +52,4 @@ cd ..
 
 ./EyeWitness.py -f ../http-urls.txt --web -d webreport
 
-mv webreport ../download/
+mv webreport/ ../../download/
